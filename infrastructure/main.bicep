@@ -16,9 +16,5 @@ module apiService 'modules/compute/appservice.bicep' = {
         appName: 'api-${uniqueId}'
         appServicePlanName: 'plan-api-${uniqueId}'
         location: location
-        keyVaultName: keyVault.outputs.name
     }
-  dependsOn: [
-    keyVault
-  ]
 }
