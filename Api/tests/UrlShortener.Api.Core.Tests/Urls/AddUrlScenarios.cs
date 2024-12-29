@@ -25,8 +25,9 @@ public class AddUrlScenarios
     {
         var request = CreateAddUrlRequest();
         var response = await _handler.HandleAsync(request, CancellationToken.None);
-        response.ShortUrl.Should().NotBeEmpty();
-        response.ShortUrl.Should().Be("0");
+        response.Succeeded.Should().BeTrue();
+        response.Value!.ShortUrl.Should().NotBeEmpty();
+        response.Value.ShortUrl.Should().Be("0");
     }
 
     [Fact]
@@ -36,7 +37,8 @@ public class AddUrlScenarios
 
         var response = await _handler.HandleAsync(request, CancellationToken.None);
 
-        _urlDataStore.Should().ContainKey(response.ShortUrl);
+        response.Succeeded.Should().BeTrue();
+        _urlDataStore.Should().ContainKey(response.Value!.ShortUrl);
     }
 
     [Fact]
@@ -46,14 +48,25 @@ public class AddUrlScenarios
 
         var response = await _handler.HandleAsync(request, CancellationToken.None);
 
-        _urlDataStore.Should().ContainKey(response.ShortUrl);
-        _urlDataStore[response.ShortUrl].CreatedBy.Should().Be(request.CreatedBy);
-        _urlDataStore[response.ShortUrl].CreatedOn.Should().Be(_timeProvider.GetUtcNow());
+        _urlDataStore.Should().ContainKey(response.Value!.ShortUrl);
+        _urlDataStore[response.Value.ShortUrl].CreatedBy.Should().Be(request.CreatedBy);
+        _urlDataStore[response.Value.ShortUrl].CreatedOn.Should().Be(_timeProvider.GetUtcNow());
     }
 
-    private static AddUrlRequest CreateAddUrlRequest()
+    [Fact]
+    public async Task Should_return_error_if_created_by_is_empty()
     {
-        var request = new AddUrlRequest(new Uri("https://dometrain.com"), "me@example.com");
+        var request = CreateAddUrlRequest(string.Empty);
+
+        var response = await _handler.HandleAsync(request, CancellationToken.None);
+
+        response.Succeeded.Should().BeFalse();
+        response.Error.Code.Should().Be("missing_value");
+    }
+
+    private static AddUrlRequest CreateAddUrlRequest(string createdBy = "me@example.com")
+    {
+        var request = new AddUrlRequest(new Uri("https://dometrain.com"), createdBy);
         return request;
     }
 }
