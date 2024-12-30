@@ -1,6 +1,7 @@
 using Azure.Identity;
 using UrlShortener.Api;
 using UrlShortener.Core.Urls.Add;
+using UrlShortener.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +18,10 @@ if (!string.IsNullOrEmpty(keyVaultName))
 }
 
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddUrlFeature();
+builder.Services
+    .AddUrlFeature()
+    .AddCosmosUrlDataStore(builder.Configuration);
+
 
 var app = builder.Build();
 
