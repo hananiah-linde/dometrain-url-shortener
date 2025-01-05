@@ -12,7 +12,8 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddSingleton<CosmosClient>(s =>
-            new CosmosClient(configuration["CosmosDb:ConnectionString"]!));
+            new CosmosClient(configuration["CosmosDb:ConnectionString"]!,
+                new CosmosClientOptions { ConnectionMode = ConnectionMode.Gateway }));
 
         services.AddSingleton<IUrlDataStore>(s =>
         {
