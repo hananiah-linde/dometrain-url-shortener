@@ -33,6 +33,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapGet("/", () => "Url Shortener API");
+
 app.MapPost("/api/urls",
     async (AddUrlHandler handler,
         AddUrlRequest request,
