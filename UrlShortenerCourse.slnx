@@ -8,5 +8,6 @@
   </Folder>
   <Folder Name="/TokenRanges/">
     <Project Path="TokenRanges\src\UrlShortener.TokenRangeService\UrlShortener.TokenRangeService.csproj" Type="Classic C#" />
+    <Project Path="TokenRanges\tests\UrlShortener.TokenRangeService.Tests\UrlShortener.TokenRangeService.Tests.csproj" Type="Classic C#" />
   </Folder>
 </Solution>
