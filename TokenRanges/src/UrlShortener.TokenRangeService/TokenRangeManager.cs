@@ -2,16 +2,17 @@ using Npgsql;
 
 namespace UrlShortener.TokenRangeService;
 
-public class TokenRangeManager
+internal class TokenRangeManager
 {
     private readonly string _connectionString;
+    private const int DefaultRangeSize = 1000;
 
-    private const string SqlQuery = $"""
+    private readonly string _sqlQuery = $$"""
                                      INSERT INTO "TokenRanges" ("MachineIdentifier", "Start", "End")
                                      VALUES (
                                              @MachineIdentifier,
-                                             COALESCE((SELECT MAX("End") FROM "TokenRanges") + 1, 1000),
-                                             COALESCE((SELECT MAX("End") FROM "TokenRanges") + 1000, 2000)
+                                             COALESCE((SELECT MAX("End") FROM "TokenRanges") + 1, {{DefaultRangeSize}}),
+                                             COALESCE((SELECT MAX("End") FROM "TokenRanges") + {{DefaultRangeSize}}, 2000)
                                      )
                                      RETURNING "Id", "MachineIdentifier", "Start", "End";
                                      """;
@@ -26,7 +27,7 @@ public class TokenRangeManager
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
-        await using var command = new NpgsqlCommand(SqlQuery, connection);
+        await using var command = new NpgsqlCommand(_sqlQuery, connection);
         command.Parameters.AddWithValue("@MachineIdentifier", machineIdentifier);
 
         await using var reader = await command.ExecuteReaderAsync();
@@ -41,12 +42,5 @@ public class TokenRangeManager
 
         throw new FailedToAssignRangeException("Failed to assign range.");
 
-    }
-}
-
-public class FailedToAssignRangeException : Exception
-{
-    public FailedToAssignRangeException(string message) : base(message)
-    {
     }
 }
