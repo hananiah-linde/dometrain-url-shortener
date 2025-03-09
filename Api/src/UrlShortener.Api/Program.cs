@@ -22,6 +22,7 @@ builder.Services
     .AddUrlFeature()
     .AddCosmosUrlDataStore(builder.Configuration);
 
+builder.Services.AddHostedService<TokenManager>();
 
 var app = builder.Build();
 
