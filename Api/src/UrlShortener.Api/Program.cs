@@ -13,7 +13,7 @@ var keyVaultName = builder.Configuration["KeyVaultName"];
 if (!string.IsNullOrEmpty(keyVaultName))
 {
     builder.Configuration.AddAzureKeyVault(
-        new Uri($"https://{keyVaultName}.vault.azure.net/"),
+        new Uri($"https://{keyVaultName}. vault.azure.net/"),
         new DefaultAzureCredential());
 }
 
@@ -21,6 +21,11 @@ builder.Services.AddSingleton(TimeProvider.System);
 builder.Services
     .AddUrlFeature()
     .AddCosmosUrlDataStore(builder.Configuration);
+
+builder.Services.AddHttpClient("TokenRangeService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["TokenRangeService:Endpoint"]!);
+});
 
 builder.Services.AddHostedService<TokenManager>();
 
