@@ -1,34 +1,48 @@
 using UrlShortener.Core;
 
+namespace UrlShortener.Api;
+
 public class TokenManager : IHostedService
 {
-    private readonly HttpClient _httpClient;
+    private readonly ITokenRangeApiClient _client;
     private readonly ILogger<TokenManager> _logger;
     private TokenProvider _tokenProvider;
+    private readonly IEnvironmentManager _environmentManager;
 
     private readonly string _machineIdentifier;
 
-    public TokenManager(IHttpClientFactory httpClientFactory, ILogger<TokenManager> logger, TokenProvider tokenProvider)
+    public TokenManager(ITokenRangeApiClient client, ILogger<TokenManager> logger, TokenProvider tokenProvider, IEnvironmentManager environmentManager)
     {
         _logger = logger;
         _tokenProvider = tokenProvider;
-        _httpClient = httpClientFactory.CreateClient("TokenRangeService");
+        _environmentManager = environmentManager;
+        _client = client;
         _machineIdentifier = Environment.GetEnvironmentVariable("WEBSITE_INSTANCE_ID") ?? "unknown-machine-id";
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting token manager");
-
-        var response = await _httpClient.PostAsJsonAsync("assign",
-            new { Key = _machineIdentifier }, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            throw new Exception("Failed to assign new token range");
-        }
+            _logger.LogInformation("Starting token manager");
 
-        var range = await response.Content.ReadFromJsonAsync<TokenRange>(cancellationToken);
+            _tokenProvider.ReachingRangeLimit += async (sender, args) =>
+            {
+                await AssignNewRangeAsync(cancellationToken);
+            };
+
+            await AssignNewRangeAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "TokenManager failed to start due to an error.");
+            _environmentManager.FatalError(); // Stop the application with a fatal error
+        }
+    }
+
+    private async Task AssignNewRangeAsync(CancellationToken cancellationToken)
+    {
+        var range = await _client.AssignRangeAsync(_machineIdentifier, cancellationToken);
 
         if (range is null)
         {
@@ -36,8 +50,7 @@ public class TokenManager : IHostedService
         }
 
         _tokenProvider.AssignRange(range);
-
-        _logger.LogInformation("Token range assigned: {Start}-{End}", range.Start, range.End);
+        _logger.LogInformation("Assigned range: {Start}-{End}", range.Start, range.End);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

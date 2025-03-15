@@ -17,7 +17,8 @@ if (!string.IsNullOrEmpty(keyVaultName))
         new DefaultAzureCredential());
 }
 
-builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton(TimeProvider.System)
+    .AddSingleton<IEnvironmentManager, EnvironmentManager>();
 builder.Services
     .AddUrlFeature()
     .AddCosmosUrlDataStore(builder.Configuration);
@@ -27,6 +28,7 @@ builder.Services.AddHttpClient("TokenRangeService", client =>
     client.BaseAddress = new Uri(builder.Configuration["TokenRangeService:Endpoint"]!);
 });
 
+builder.Services.AddSingleton<ITokenRangeApiClient, TokenRangeApiClient>();
 builder.Services.AddHostedService<TokenManager>();
 
 var app = builder.Build();
