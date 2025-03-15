@@ -1,8 +1,7 @@
 using UrlShortener.Core;
-using UrlShortener.Core.Urls;
 using UrlShortener.Core.Urls.Add;
 
-namespace UrlShortener.Api;
+namespace UrlShortener.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

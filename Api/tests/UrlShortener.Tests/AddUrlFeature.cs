@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using UrlShortener.Core.Urls.Add;
 using FluentAssertions;
@@ -12,6 +13,8 @@ public class AddUrlFeature : IClassFixture<ApiFixture>
     public AddUrlFeature(ApiFixture fixture)
     {
         _client = fixture.CreateClient();
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue(scheme: "TestScheme");
     }
     [Fact]
     public async Task Given_long_url_Should_return_short_url()
