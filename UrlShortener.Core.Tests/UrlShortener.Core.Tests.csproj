@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>UrlShortener.Api.Core.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\UrlShortener.Api.Core\UrlShortener.Api.Core.csproj" />
+      <ProjectReference Include="..\UrlShortener.Core\UrlShortener.Core.csproj" />
     </ItemGroup>
     
 </Project>
