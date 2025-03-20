@@ -1,13 +1,20 @@
 ﻿<Solution>
-  <Folder Name="/Api/">
-    <Project Path="Api\src\UrlShortener.Api\UrlShortener.Api.csproj" Type="Classic C#" />
-    <Project Path="Api\src\UrlShortener.Core\UrlShortener.Core.csproj" Type="Classic C#" />
-    <Project Path="Api\src\UrlShortener.Infrastructure\UrlShortener.Infrastructure.csproj" Type="Classic C#" />
-    <Project Path="Api\tests\UrlShortener.Api.Core.Tests\UrlShortener.Api.Core.Tests.csproj" Type="Classic C#" />
-    <Project Path="Api\tests\UrlShortener.Tests\UrlShortener.Tests.csproj" Type="Classic C#" />
+  <Folder Name="/Infrastructure">
+    <File Path="Infrastructure\bicepconfig.json" />
+    <File Path="Infrastructure\main.bicep" />
+    <File Path="Infrastructure\modules\identity\entra-app.bicep" />
+    <File Path="Infrastructure\modules\secrets\key-vault-role-assignment.bicep" />
+    <File Path="Infrastructure\modules\secrets\keyvault.bicep" />
+    <File Path="Infrastructure\modules\storage\cosmos-db.bicep" />
+    <File Path="Infrastructure\modules\storage\postgresql.bicep" />
+    <File Path="Infrastructure\modules\compute\appservice.bicep" />
   </Folder>
-  <Folder Name="/TokenRanges/">
-    <Project Path="TokenRanges\src\UrlShortener.TokenRangeService\UrlShortener.TokenRangeService.csproj" Type="Classic C#" />
-    <Project Path="TokenRanges\tests\UrlShortener.TokenRangeService.Tests\UrlShortener.TokenRangeService.Tests.csproj" Type="Classic C#" />
-  </Folder>
+  <Project Path="UrlShortener.Api.Core.Tests\UrlShortener.Api.Core.Tests.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.Api.Core\UrlShortener.Api.Core.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.Api.Tests\UrlShortener.Api.Tests.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.Api\UrlShortener.Api.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.Infrastructure\UrlShortener.Infrastructure.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.RedirectApi\UrlShortener.RedirectApi.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.TokenRangeService.Tests\UrlShortener.TokenRangeService.Tests.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.TokenRangeService\UrlShortener.TokenRangeService.csproj" Type="Classic C#" />
 </Solution>
