@@ -15,6 +15,6 @@
   <Project Path="UrlShortener.Core\UrlShortener.Core.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.Infrastructure\UrlShortener.Infrastructure.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.RedirectApi\UrlShortener.RedirectApi.csproj" Type="Classic C#" />
-  <Project Path="UrlShortener.TokenRangeService.Tests\UrlShortener.TokenRangeService.Tests.csproj" Type="Classic C#" />
-  <Project Path="UrlShortener.TokenRangeService\UrlShortener.TokenRangeService.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.TokenRangeApi.Tests\UrlShortener.TokenRangeApi.Tests.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.TokenRangeApi\UrlShortener.TokenRangeApi.csproj" Type="Classic C#" />
 </Solution>

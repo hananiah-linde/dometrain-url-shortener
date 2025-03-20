@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <RootNamespace>UrlShortener.TokenRangeService.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -29,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\UrlShortener.TokenRangeService\UrlShortener.TokenRangeService.csproj" />
+      <ProjectReference Include="..\UrlShortener.TokenRangeApi\UrlShortener.TokenRangeApi.csproj" />
     </ItemGroup>
 
 </Project>
