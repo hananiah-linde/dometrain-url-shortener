@@ -1,0 +1,78 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Core.Tests", "UrlShortener.Core.Tests\UrlShortener.Core.Tests.csproj", "{79EB6995-AE26-1574-B256-58C20261ED61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.RedirectApi", "UrlShortener.RedirectApi\UrlShortener.RedirectApi.csproj", "{1EFF1283-5DB6-0C34-FD18-DE7198E9218B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Api", "UrlShortener.Api\UrlShortener.Api.csproj", "{FEF440F0-CF56-1FD5-FE1B-1B0F26F4DE9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.TokenRangeApi", "UrlShortener.TokenRangeApi\UrlShortener.TokenRangeApi.csproj", "{890C688A-C31A-0BBE-082B-DA834B5A9D8B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Api.Tests", "UrlShortener.Api.Tests\UrlShortener.Api.Tests.csproj", "{CC88A465-AF11-3053-FF9C-F4BC323D43F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.TokenRangeApi.Tests", "UrlShortener.TokenRangeApi.Tests\UrlShortener.TokenRangeApi.Tests.csproj", "{90CC0EC9-66B9-2445-30A5-C205A35F1390}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Core", "UrlShortener.Core\UrlShortener.Core.csproj", "{E1757247-DD0F-912E-C1C6-9C4F49D7961E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Libraries.Testing", "UrlShortener.Libraries.Testing\UrlShortener.Libraries.Testing.csproj", "{D0074292-1A65-F361-E82B-C14F1AB1409F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.Infrastructure", "UrlShortener.Infrastructure\UrlShortener.Infrastructure.csproj", "{CBC73296-55B5-597C-0EA8-20116C0B4713}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrlShortener.RedirectApi.Tests", "UrlShortener.RedirectApi.Tests\UrlShortener.RedirectApi.Tests.csproj", "{966D2190-C1A1-6C90-47FD-30E137C84FC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{79EB6995-AE26-1574-B256-58C20261ED61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79EB6995-AE26-1574-B256-58C20261ED61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79EB6995-AE26-1574-B256-58C20261ED61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79EB6995-AE26-1574-B256-58C20261ED61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EFF1283-5DB6-0C34-FD18-DE7198E9218B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EFF1283-5DB6-0C34-FD18-DE7198E9218B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EFF1283-5DB6-0C34-FD18-DE7198E9218B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EFF1283-5DB6-0C34-FD18-DE7198E9218B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEF440F0-CF56-1FD5-FE1B-1B0F26F4DE9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEF440F0-CF56-1FD5-FE1B-1B0F26F4DE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEF440F0-CF56-1FD5-FE1B-1B0F26F4DE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEF440F0-CF56-1FD5-FE1B-1B0F26F4DE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{890C688A-C31A-0BBE-082B-DA834B5A9D8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{890C688A-C31A-0BBE-082B-DA834B5A9D8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{890C688A-C31A-0BBE-082B-DA834B5A9D8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{890C688A-C31A-0BBE-082B-DA834B5A9D8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC88A465-AF11-3053-FF9C-F4BC323D43F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC88A465-AF11-3053-FF9C-F4BC323D43F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC88A465-AF11-3053-FF9C-F4BC323D43F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC88A465-AF11-3053-FF9C-F4BC323D43F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90CC0EC9-66B9-2445-30A5-C205A35F1390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90CC0EC9-66B9-2445-30A5-C205A35F1390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90CC0EC9-66B9-2445-30A5-C205A35F1390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90CC0EC9-66B9-2445-30A5-C205A35F1390}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1757247-DD0F-912E-C1C6-9C4F49D7961E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1757247-DD0F-912E-C1C6-9C4F49D7961E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1757247-DD0F-912E-C1C6-9C4F49D7961E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1757247-DD0F-912E-C1C6-9C4F49D7961E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0074292-1A65-F361-E82B-C14F1AB1409F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0074292-1A65-F361-E82B-C14F1AB1409F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0074292-1A65-F361-E82B-C14F1AB1409F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0074292-1A65-F361-E82B-C14F1AB1409F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBC73296-55B5-597C-0EA8-20116C0B4713}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBC73296-55B5-597C-0EA8-20116C0B4713}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBC73296-55B5-597C-0EA8-20116C0B4713}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBC73296-55B5-597C-0EA8-20116C0B4713}.Release|Any CPU.Build.0 = Release|Any CPU
+		{966D2190-C1A1-6C90-47FD-30E137C84FC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{966D2190-C1A1-6C90-47FD-30E137C84FC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{966D2190-C1A1-6C90-47FD-30E137C84FC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{966D2190-C1A1-6C90-47FD-30E137C84FC5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1809B537-8FAD-4B69-BE67-164DF8C1EE0C}
+	EndGlobalSection
+EndGlobal

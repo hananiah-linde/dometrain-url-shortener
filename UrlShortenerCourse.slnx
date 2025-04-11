@@ -1,22 +1,4 @@
 ﻿<Solution>
-  <Folder Name="/Infrastructure">
-    <File Path="Infrastructure\bicepconfig.json" />
-    <File Path="Infrastructure\main.bicep" />
-    <File Path="Infrastructure\modules\identity\entra-app.bicep" />
-    <File Path="Infrastructure\modules\secrets\key-vault-role-assignment.bicep" />
-    <File Path="Infrastructure\modules\secrets\keyvault.bicep" />
-    <File Path="Infrastructure\modules\storage\cosmos-db.bicep" />
-    <File Path="Infrastructure\modules\storage\postgresql.bicep" />
-    <File Path="Infrastructure\modules\compute\appservice.bicep" />
-  </Folder>
-  <Folder Name="/Infrastructure/Modules/">
-    <File Path="Infrastructure\modules\identity\entra-app.bicep" />
-    <File Path="Infrastructure\modules\secrets\key-vault-role-assignment.bicep" />
-    <File Path="Infrastructure\modules\secrets\keyvault.bicep" />
-    <File Path="Infrastructure\modules\storage\cosmos-db.bicep" />
-    <File Path="Infrastructure\modules\storage\postgresql.bicep" />
-    <File Path="Infrastructure\modules\compute\appservice.bicep" />
-  </Folder>
   <Folder Name="/Libraries/">
     <Project Path="UrlShortener.Libraries.Testing\UrlShortener.Libraries.Testing.csproj" Type="Classic C#" />
   </Folder>
@@ -24,6 +6,7 @@
   <Project Path="UrlShortener.Api\UrlShortener.Api.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.Core.Tests\UrlShortener.Core.Tests.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.Core\UrlShortener.Core.csproj" Type="Classic C#" />
+  <Project Path="UrlShortener.Functions\UrlShortener.Functions.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.Infrastructure\UrlShortener.Infrastructure.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.RedirectApi.Tests\UrlShortener.RedirectApi.Tests.csproj" Type="Classic C#" />
   <Project Path="UrlShortener.RedirectApi\UrlShortener.RedirectApi.csproj" Type="Classic C#" />
