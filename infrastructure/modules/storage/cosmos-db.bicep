@@ -10,6 +10,10 @@ param containers array = [
     name: 'items'
     partitionKey: '/PartitionKey'
   }
+  {
+    name: 'byUser'
+    partitionKey: '/PartitionKey'
+  }
 ]
 
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' = {
@@ -82,4 +86,5 @@ resource cosmosDbConnectionString 'Microsoft.KeyVault/vaults/secrets@2023-07-01'
     value: cosmosDbAccount.listConnectionStrings().connectionStrings[0].connectionString
   }
 }
+
 output cosmosDbId string = cosmosDbAccount.id
