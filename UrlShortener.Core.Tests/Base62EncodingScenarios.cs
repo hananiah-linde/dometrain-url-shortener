@@ -1,6 +1,4 @@
-﻿using UrlShortener.Core;
-
-namespace UrlShortener.Api.Core.Tests;
+﻿namespace UrlShortener.Core.Tests;
 
 public class Base62EncodingScenarios
 {

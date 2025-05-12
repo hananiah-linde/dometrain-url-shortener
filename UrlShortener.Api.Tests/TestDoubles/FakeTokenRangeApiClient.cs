@@ -1,7 +1,6 @@
-using UrlShortener.Api;
 using UrlShortener.Core;
 
-namespace UrlShortener.Tests.TestDoubles;
+namespace UrlShortener.Api.Tests.TestDoubles;
 
 public class FakeTokenRangeApiClient : ITokenRangeApiClient
 {

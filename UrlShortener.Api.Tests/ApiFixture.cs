@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using UrlShortener.Api;
+using UrlShortener.Api.Tests.TestDoubles;
 using UrlShortener.Core.Urls.Add;
+using UrlShortener.Core.Urls.List;
 using UrlShortener.Libraries.Testing.Extensions;
-using UrlShortener.Tests.TestDoubles;
 
-namespace UrlShortener.Tests;
+namespace UrlShortener.Api.Tests;
 
 public class ApiFixture : WebApplicationFactory<IApiAssemblyMarker>
 {
@@ -21,8 +21,16 @@ public class ApiFixture : WebApplicationFactory<IApiAssemblyMarker>
     {
         builder.ConfigureTestServices(services =>
         {
+            var inMemoryStore = new InMemoryUrlDataStore();
             services.Remove<IUrlDataStore>();
-            services.AddSingleton<IUrlDataStore, InMemoryUrlDataStore>();
+            services
+                .AddSingleton<IUrlDataStore>(
+                    inMemoryStore);
+
+            services.Remove<IUserUrlsReader>();
+            services
+                .AddSingleton<IUserUrlsReader>(
+                    inMemoryStore);
 
             services.Remove<ITokenRangeApiClient>();
             services.AddSingleton<ITokenRangeApiClient, FakeTokenRangeApiClient>();
@@ -39,6 +47,8 @@ public class ApiFixture : WebApplicationFactory<IApiAssemblyMarker>
                 options.FallbackPolicy = null;
             });
         });
+
+        base.ConfigureWebHost(builder);
     }
 }
 

@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Time.Testing;
-using UrlShortener.Api.Core.Tests.TestDoubles;
-using UrlShortener.Core;
+using UrlShortener.Core.Tests.TestDoubles;
 using UrlShortener.Core.Urls.Add;
 
-namespace UrlShortener.Api.Core.Tests.Urls;
+namespace UrlShortener.Core.Tests.Urls;
 
 public class AddUrlScenarios
 {

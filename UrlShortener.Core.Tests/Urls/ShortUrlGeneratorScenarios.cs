@@ -1,7 +1,6 @@
-using UrlShortener.Core;
 using UrlShortener.Core.Urls.Add;
 
-namespace UrlShortener.Api.Core.Tests.Urls;
+namespace UrlShortener.Core.Tests.Urls;
 
 public class ShortUrlGeneratorScenarios
 {

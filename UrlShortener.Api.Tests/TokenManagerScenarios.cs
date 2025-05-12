@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using UrlShortener.Api;
 using UrlShortener.Core;
 
-namespace UrlShortener.Tests;
+namespace UrlShortener.Api.Tests;
 
 public class TokenManagerScenarios
 {

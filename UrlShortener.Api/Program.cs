@@ -3,10 +3,12 @@ using System.Security.Claims;
 using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
 using UrlShortener.Api;
 using UrlShortener.Api.Extensions;
 using UrlShortener.Core.Urls.Add;
+using UrlShortener.Core.Urls.List;
 using UrlShortener.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +28,8 @@ if (!string.IsNullOrEmpty(keyVaultName))
 builder.Services.AddSingleton(TimeProvider.System)
     .AddSingleton<IEnvironmentManager, EnvironmentManager>();
 builder.Services
-    .AddUrlFeature()
+    .AddAddUrlFeature()
+    .AddListUrlsFeature()
     .AddCosmosUrlDataStore(builder.Configuration);
 
 builder.Services.AddHttpClient("TokenRangeService", client =>
@@ -90,9 +93,7 @@ app.MapPost("/api/urls",
         HttpContext context,
         CancellationToken cancellationToken) =>
     {
-        var email = context.User.FindFirstValue("preferred_username")
-                    ?? throw new AuthenticationException("Missing preferred_username claim");
-
+        var email = context.User.GetUserEmail();
         var requestWithUser = request with
         {
             CreatedBy = email
@@ -104,8 +105,21 @@ app.MapPost("/api/urls",
             return Results.BadRequest(result.Error);
         }
 
-        return Results.Created("/api/urls", result.Value!);
-
+        return Results.Created($"/api/urls/{result.Value!.ShortUrl}", result.Value);
     });
+
+app.MapGet("/api/urls", async (HttpContext context,
+        ListUrlsHandler handler,
+        int? pageSize,
+        [FromQuery(Name = "continuation")] string? continuationToken,
+        CancellationToken cancellationToken) =>
+    {
+        var request = new ListUrlsRequest(context.User.GetUserEmail(), pageSize,
+            continuationToken);
+        var urls = await handler.HandleAsync(request, cancellationToken);
+
+        return urls;
+    }
+);
 
 app.Run();
