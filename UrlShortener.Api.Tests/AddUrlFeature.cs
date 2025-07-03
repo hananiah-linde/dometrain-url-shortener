@@ -20,10 +20,10 @@ public class AddUrlFeature
     public async Task Given_long_url_Should_return_short_url()
     {
         var response = await _client.PostAsJsonAsync("/api/urls",
-            new AddUrlRequest(new Uri("https://www.dometrain.com"), string.Empty));
+            new AddUrlRequest(new Uri("https://dometrain.com"), ""));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var addUrlResponse = await response.Content.ReadFromJsonAsync<AddUrlResponse>();
-        addUrlResponse.Should().NotBeNull();
+        addUrlResponse!.ShortUrl.Should().NotBeNull();
     }
 }

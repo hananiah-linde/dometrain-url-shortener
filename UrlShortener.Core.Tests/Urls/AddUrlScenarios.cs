@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Time.Testing;
+using UrlShortener.Core;
 using UrlShortener.Core.Tests.TestDoubles;
 using UrlShortener.Core.Urls.Add;
+using UrlShortener.Core.Urls.List;
 
-namespace UrlShortener.Core.Tests.Urls;
+namespace UrlShortener.Api.Core.Tests.Urls;
 
 public class AddUrlScenarios
 {
@@ -13,20 +15,23 @@ public class AddUrlScenarios
     public AddUrlScenarios()
     {
         var tokenProvider = new TokenProvider();
-        tokenProvider.AssignRange(0, 5);
+        tokenProvider.AssignRange(1, 5);
         var shortUrlGenerator = new ShortUrlGenerator(tokenProvider);
         _timeProvider = new FakeTimeProvider();
-        _handler = new AddUrlHandler(shortUrlGenerator, _urlDataStore, _timeProvider);
+        _handler = new AddUrlHandler(shortUrlGenerator, _urlDataStore, _timeProvider,
+            new RedirectLinkBuilder(new Uri("https://tests/")));
     }
 
     [Fact]
     public async Task Should_return_shortened_url()
     {
         var request = CreateAddUrlRequest();
-        var response = await _handler.HandleAsync(request, CancellationToken.None);
+
+        var response = await _handler.HandleAsync(request, default);
+
         response.Succeeded.Should().BeTrue();
-        response.Value!.ShortUrl.Should().NotBeEmpty();
-        response.Value.ShortUrl.Should().Be("0");
+        response.Value!.Id.Should().NotBeEmpty();
+        response.Value!.Id.Should().Be("1");
     }
 
     [Fact]
@@ -34,10 +39,10 @@ public class AddUrlScenarios
     {
         var request = CreateAddUrlRequest();
 
-        var response = await _handler.HandleAsync(request, CancellationToken.None);
+        var response = await _handler.HandleAsync(request, default);
 
         response.Succeeded.Should().BeTrue();
-        _urlDataStore.Should().ContainKey(response.Value!.ShortUrl);
+        _urlDataStore.Should().ContainKey(response.Value!.Id);
     }
 
     [Fact]
@@ -45,27 +50,41 @@ public class AddUrlScenarios
     {
         var request = CreateAddUrlRequest();
 
-        var response = await _handler.HandleAsync(request, CancellationToken.None);
+        var response = await _handler.HandleAsync(request, default);
 
-        _urlDataStore.Should().ContainKey(response.Value!.ShortUrl);
-        _urlDataStore[response.Value.ShortUrl].CreatedBy.Should().Be(request.CreatedBy);
-        _urlDataStore[response.Value.ShortUrl].CreatedOn.Should().Be(_timeProvider.GetUtcNow());
+        response.Succeeded.Should().BeTrue();
+        _urlDataStore.Should().ContainKey(response.Value!.Id);
+        _urlDataStore[response.Value!.Id].CreatedBy.Should().Be(request.CreatedBy);
+        _urlDataStore[response.Value!.Id].CreatedOn.Should()
+            .Be(_timeProvider.GetUtcNow());
     }
 
     [Fact]
     public async Task Should_return_error_if_created_by_is_empty()
     {
-        var request = CreateAddUrlRequest(string.Empty);
+        var request = CreateAddUrlRequest(createdBy: string.Empty);
 
-        var response = await _handler.HandleAsync(request, CancellationToken.None);
+        var response = await _handler.HandleAsync(request, default);
 
         response.Succeeded.Should().BeFalse();
         response.Error.Code.Should().Be("missing_value");
     }
 
-    private static AddUrlRequest CreateAddUrlRequest(string createdBy = "me@example.com")
+    [Fact]
+    public async Task Should_return_error_if_long_url_is_not_http()
     {
-        var request = new AddUrlRequest(new Uri("https://dometrain.com"), createdBy);
-        return request;
+        var request = CreateAddUrlRequest(createdBy: string.Empty);
+
+        var response = await _handler.HandleAsync(request, default);
+
+        response.Succeeded.Should().BeFalse();
+        response.Error.Code.Should().Be("missing_value");
+    }
+
+    private static AddUrlRequest CreateAddUrlRequest(string createdBy = "gui@guiferreira.me")
+    {
+        return new AddUrlRequest(
+            new Uri("https://dometrain.com"),
+            createdBy);
     }
 }

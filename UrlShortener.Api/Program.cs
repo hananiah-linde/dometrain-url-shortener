@@ -1,5 +1,3 @@
-using System.Security.Authentication;
-using System.Security.Claims;
 using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +29,10 @@ builder.Services
     .AddAddUrlFeature()
     .AddListUrlsFeature()
     .AddCosmosUrlDataStore(builder.Configuration);
+
+builder.Services.AddSingleton(
+    new RedirectLinkBuilder(
+        new Uri(builder.Configuration["RedirectService:Endpoint"]!)));
 
 builder.Services.AddHttpClient("TokenRangeService", client =>
 {
@@ -71,6 +73,23 @@ builder.Services.AddAuthorization(options =>
     options.FallbackPolicy = options.DefaultPolicy;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowWebApp", policy =>
+    {
+        if (builder.Configuration["WebAppEndpoints"] is null)
+        {
+            return;
+        }
+
+        var origins = builder.Configuration["WebAppEndpoints"]!.Split(",");
+
+        policy.WithOrigins(origins.ToArray())
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -80,6 +99,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowWebApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
