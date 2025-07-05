@@ -13,6 +13,14 @@ module keyVault 'modules/secrets/keyvault.bicep' = {
   }
 }
 
+module logAnalyticsWorkspace 'modules/telemetry/log-analytics.bicep' = {
+  name: 'logAnalyticsWorkspaceDeployment'
+  params: {
+    location: location
+    name: 'log-analytics-ws-${uniqueId}'
+  }
+}
+
 module apiService 'modules/compute/appservice.bicep' = {
   name: 'apiDeployment'
   params: {
@@ -20,6 +28,7 @@ module apiService 'modules/compute/appservice.bicep' = {
     appServicePlanName: 'plan-api-${uniqueId}'
     location: location
     keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     appSettings: [
       {
         name: 'DatabaseName'
@@ -56,19 +65,20 @@ module apiService 'modules/compute/appservice.bicep' = {
       {
         name: 'AzureAd__Scopes'
         value: 'Urls.Read'
-      },
+      }
       {
         name: 'WebAppEndpoints'
-        value: '${staticWebApp.outputs.url};http://localhost:3000'
-      },
+        value: '${staticWebApp.outputs.url},http://localhost:3000'
+      }
       {
         name: 'RedirectService__Endpoint'
-        value: '${redirectApiService.outputs.url}/r'
+        value: '${redirectApiService.outputs.url}/r/'
       }
     ]
   }
   dependsOn: [
     keyVault
+    logAnalyticsWorkspace
   ]
 }
 
@@ -79,9 +89,11 @@ module tokenRangeService 'modules/compute/appservice.bicep' = {
     appServicePlanName: 'plan-token-range-${uniqueId}'
     location: location
     keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
   }
   dependsOn: [
     keyVault
+    logAnalyticsWorkspace
   ]
 }
 
@@ -92,6 +104,7 @@ module redirectApiService 'modules/compute/appservice.bicep' = {
     appServicePlanName: 'plan-redirect-${uniqueId}'
     location: location
     keyVaultName: keyVaultName
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     appSettings: [
       {
         name: 'DatabaseName'
@@ -105,6 +118,7 @@ module redirectApiService 'modules/compute/appservice.bicep' = {
   }
   dependsOn: [
     keyVault
+    logAnalyticsWorkspace
   ]
 }
 
@@ -150,6 +164,7 @@ module cosmosTriggerFunction 'modules/compute/function.bicep' = {
     location: location
     keyVaultName: keyVaultName
     storageAccountConnectionString: storageAccount.outputs.storageConnectionString
+    logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
     appSettings: [
       {
         name: 'CosmosDbConnection'
@@ -169,6 +184,7 @@ module cosmosTriggerFunction 'modules/compute/function.bicep' = {
     keyVault
     storageAccount
     cosmosDb
+    logAnalyticsWorkspace
   ]
 }
 
@@ -195,10 +211,10 @@ module keyVaultRoleAssignment 'modules/secrets/key-vault-role-assignment.bicep' 
 module entraApp 'modules/identity/entra-app.bicep' = {
   name: 'entraAppWeb'
   params: {
-    applicationName: 'web-${uniqueId}',
+    applicationName: 'web-${uniqueId}'
     spaRedirectUris: [
-        'http://localhost:3000/'
-        staticWebApp.outputs.url
+      'http://localhost:3000/' // Not for PRD use
+      staticWebApp.outputs.url
     ]
   }
 }
