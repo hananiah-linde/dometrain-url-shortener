@@ -21,10 +21,13 @@ public static class ServiceCollectionExtensions
             var cosmosClient = s.GetRequiredService<CosmosClient>();
             var container = cosmosClient.GetContainer(databaseName, containerName);
             var redisConnectionMultiplexer = s.GetRequiredService<IConnectionMultiplexer>();
+            var logger = s.GetRequiredService<ILogger<RedisUrlReader>>();
+
 
             return new RedisUrlReader(
                 new CosmosShortenedUrlReader(container),
-                redisConnectionMultiplexer);
+                redisConnectionMultiplexer,
+                logger);
         });
 
         return services;

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using Testcontainers.Redis;
 using UrlShortener.Libraries.Testing.Extensions;
@@ -30,10 +31,13 @@ public class ApiFixture : WebApplicationFactory<IRedirectApiAssemblyMarker>, IAs
             services =>
             {
                 services.Remove<IShortenedUrlReader>();
-                services.AddSingleton<IShortenedUrlReader>(
-                    new RedisUrlReader(ShortenedUrlReader,
-                        ConnectionMultiplexer.Connect(RedisConnectionString))
-                );
+                services.AddSingleton<IShortenedUrlReader>(sp =>
+                {
+                    var logger = sp.GetRequiredService<ILogger<RedisUrlReader>>();
+                    return new RedisUrlReader(ShortenedUrlReader,
+                        ConnectionMultiplexer.Connect(RedisConnectionString),
+                        logger);
+                });
             });
         base.ConfigureWebHost(builder);
     }

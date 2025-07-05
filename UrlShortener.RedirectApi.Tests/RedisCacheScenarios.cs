@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using StackExchange.Redis;
 using UrlShortener.RedirectApi.Infrastructure;
@@ -18,9 +19,10 @@ public class RedisCacheScenarios
     public async Task Should_get_from_reader_if_not_in_cache()
     {
         var reader = Substitute.For<IShortenedUrlReader>();
+        var logger = Substitute.For<ILogger<RedisUrlReader>>();
         reader.GetLongUrlAsync("short", Arg.Any<CancellationToken>())
             .Returns(new ReadLongUrlResponse(true, "http://google.com"));
-        var cache = new RedisUrlReader(reader, _connectionMultiplexer);
+        var cache = new RedisUrlReader(reader, _connectionMultiplexer, logger);
 
         _ = await cache.GetLongUrlAsync("short", CancellationToken.None);
 
