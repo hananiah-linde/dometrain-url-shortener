@@ -1,8 +1,12 @@
 using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.Exporter;
 using HealthChecks.CosmosDb;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using StackExchange.Redis;
 using UrlShortener.RedirectApi.Infrastructure;
 
@@ -31,6 +35,33 @@ builder.Services.AddUrlReader(
     containerName: builder.Configuration["ContainerName"]!,
     redisConnectionString: builder.Configuration["Redis:ConnectionString"]!);
 
+var applicationName = builder.Environment.ApplicationName ?? "RedirectApi";
+
+var applicationInsightsConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService(serviceName: applicationName))
+    .WithTracing(tracing =>
+    {
+        tracing.AddAzureMonitorTraceExporter(o =>
+        {
+            tracing.AddSource("Azure.Cosmos.Operation");
+            tracing.AddHttpClientInstrumentation();
+            tracing.AddRedisInstrumentation();
+            tracing.AddConsoleExporter();
+            if (applicationInsightsConnectionString is not null)
+                o.ConnectionString = applicationInsightsConnectionString;
+        });
+    })
+    .WithMetrics(metrics =>
+    {
+        metrics.AddAzureMonitorMetricExporter(o =>
+        {
+            metrics.AddConsoleExporter();
+            if (applicationInsightsConnectionString is not null)
+                o.ConnectionString = applicationInsightsConnectionString;
+        });
+    });
 
 var app = builder.Build();
 
