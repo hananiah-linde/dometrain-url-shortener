@@ -8,6 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using StackExchange.Redis;
+using UrlShortener.RedirectApi;
 using UrlShortener.RedirectApi.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,14 @@ builder.Services.AddUrlReader(
 var applicationName = builder.Environment.ApplicationName ?? "RedirectApi";
 
 var applicationInsightsConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+
+builder.Logging.AddOpenTelemetry(options =>
+    options.SetResourceBuilder(ResourceBuilder.CreateDefault()
+            .AddService(applicationName))
+        .AddAzureMonitorLogExporter(options =>
+        {
+            options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+        }));
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
         .AddService(serviceName: applicationName))
@@ -55,12 +64,19 @@ builder.Services.AddOpenTelemetry()
     })
     .WithMetrics(metrics =>
     {
-        metrics.AddAzureMonitorMetricExporter(o =>
+        metrics
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddMeter(ApplicationDiagnostics.Meter.Name);
+
+        if (applicationInsightsConnectionString is not null)
+        {
+            metrics.AddAzureMonitorMetricExporter();
+        }
+        else
         {
             metrics.AddConsoleExporter();
-            if (applicationInsightsConnectionString is not null)
-                o.ConnectionString = applicationInsightsConnectionString;
-        });
+        }
     });
 
 var app = builder.Build();
@@ -76,6 +92,11 @@ app.MapGet("r/{shortUrl}",
     async (string shortUrl, IShortenedUrlReader reader, CancellationToken cancellationToken) =>
     {
         var response = await reader.GetLongUrlAsync(shortUrl, cancellationToken);
+
+        if (response.Found)
+        {
+            ApplicationDiagnostics.RedirectExecutedCounter.Add(1);
+        }
 
         return response switch
         {
