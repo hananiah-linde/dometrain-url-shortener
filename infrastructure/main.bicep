@@ -1,15 +1,117 @@
 param location string = resourceGroup().location
 @secure()
 param pgSqlPassword string
+param customDomain string
 
 var uniqueId = uniqueString(resourceGroup().id)
 var keyVaultName = 'kv-${uniqueId}'
+var vnetName = 'vnet-${uniqueId}'
+var apiSubnetName = 'subnet-api-${uniqueId}'
+var redirectApiSubnetName = 'subnet-redirect-${uniqueId}'
+var tokenRangeSubnetName = 'subnet-token-range-${uniqueId}'
+var cosmosTriggerSubnetName = 'subnet-cosmos-trigger-${uniqueId}'
+var redisSubnetName = 'subnet-redis-${uniqueId}'
+var postgresSubnetName = 'subnet-postgres-${uniqueId}'
+
+module vnet 'modules/network/virtual-network.bicep' = {
+  name: 'vnetDeployment'
+  params: {
+    name: vnetName
+    location: location
+    subnets: [
+      {
+        name: apiSubnetName
+        addressPrefix: '10.0.1.0/24'
+        delegations: [
+          {
+            name: 'Microsoft.Web/serverfarms'
+            properties: {
+              serviceName: 'Microsoft.Web/serverfarms'
+            }
+          }
+        ]
+        serviceEndpoints: [
+          { service: 'Microsoft.KeyVault' }
+          { service: 'Microsoft.AzureCosmosDB' }
+          { service: 'Microsoft.Web' }
+        ]
+      }
+      {
+        name: redirectApiSubnetName
+        addressPrefix: '10.0.2.0/24'
+        delegations: [
+          {
+            name: 'Microsoft.Web/serverfarms'
+            properties: {
+              serviceName: 'Microsoft.Web/serverfarms'
+            }
+          }
+        ]
+        serviceEndpoints: [
+          { service: 'Microsoft.KeyVault' }
+          { service: 'Microsoft.AzureCosmosDB' }
+        ]
+      }
+      {
+        name: tokenRangeSubnetName
+        addressPrefix: '10.0.3.0/24'
+        delegations: [
+          {
+            name: 'Microsoft.Web/serverfarms'
+            properties: {
+              serviceName: 'Microsoft.Web/serverfarms'
+            }
+          }
+        ]
+        serviceEndpoints: [
+          { service: 'Microsoft.KeyVault' }
+          { service: 'Microsoft.SQL' }
+        ]
+      }
+      {
+        name: cosmosTriggerSubnetName
+        addressPrefix: '10.0.4.0/24'
+        delegations: [
+          {
+            name: 'Microsoft.Web/serverfarms'
+            properties: {
+              serviceName: 'Microsoft.Web/serverfarms'
+            }
+          }
+        ]
+        serviceEndpoints: [
+          { service: 'Microsoft.Storage' }
+          { service: 'Microsoft.KeyVault' }
+          { service: 'Microsoft.AzureCosmosDB' }
+        ]
+      }
+      {
+        name: redisSubnetName
+        addressPrefix: '10.0.5.0/24'
+        delegations: []
+        serviceEndpoints: []
+      }
+      {
+        name: postgresSubnetName
+        addressPrefix: '10.0.6.0/24'
+        delegations: []
+        serviceEndpoints: []
+      }
+    ]
+  }
+}
 
 module keyVault 'modules/secrets/keyvault.bicep' = {
   name: 'keyVaultDeployment'
   params: {
     vaultName: keyVaultName
     location: location
+    subnets: [
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, apiSubnetName)
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, cosmosTriggerSubnetName)
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, tokenRangeSubnetName)
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, redirectApiSubnetName)
+    ]
   }
 }
 
@@ -29,6 +131,16 @@ module apiService 'modules/compute/appservice.bicep' = {
     location: location
     keyVaultName: keyVaultName
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    vnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, apiSubnetName)
+    ipSecurityRestrictions: [
+      {
+        name: 'AllowFrontDoor'
+        action: 'Allow'
+        priority: 100
+        tag: 'ServiceTag'
+        ipAddress: 'AzureFrontDoor.Backend'
+      }
+    ]
     appSettings: [
       {
         name: 'DatabaseName'
@@ -72,13 +184,14 @@ module apiService 'modules/compute/appservice.bicep' = {
       }
       {
         name: 'RedirectService__Endpoint'
-        value: '${redirectApiService.outputs.url}/r/'
+        value: 'https://${customDomain}/r/'
       }
     ]
   }
   dependsOn: [
     keyVault
     logAnalyticsWorkspace
+    vnet
   ]
 }
 
@@ -90,10 +203,21 @@ module tokenRangeService 'modules/compute/appservice.bicep' = {
     location: location
     keyVaultName: keyVaultName
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    vnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, tokenRangeSubnetName)
+    ipSecurityRestrictions: [
+      {
+        tag: 'Default'
+        action: 'Allow'
+        priority: 100
+        name: 'AllowApiSubnet'
+        vnetSubnetResourceId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, apiSubnetName)
+      }
+    ]
   }
   dependsOn: [
     keyVault
     logAnalyticsWorkspace
+    vnet
   ]
 }
 
@@ -105,6 +229,16 @@ module redirectApiService 'modules/compute/appservice.bicep' = {
     location: location
     keyVaultName: keyVaultName
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    vnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, redirectApiSubnetName)
+    ipSecurityRestrictions: [
+      {
+        name: 'AllowFrontDoor'
+        action: 'Allow'
+        priority: 100
+        tag: 'ServiceTag'
+        ipAddress: 'AzureFrontDoor.Backend'
+      }
+    ]
     appSettings: [
       {
         name: 'DatabaseName'
@@ -119,6 +253,7 @@ module redirectApiService 'modules/compute/appservice.bicep' = {
   dependsOn: [
     keyVault
     logAnalyticsWorkspace
+    vnet
   ]
 }
 
@@ -130,7 +265,12 @@ module postgres 'modules/storage/postgresql.bicep' = {
     administratorLogin: 'adminuser'
     administratorLoginPassword: pgSqlPassword
     keyVaultName: keyVaultName
+    vnetId: resourceId('Microsoft.Network/virtualNetworks', vnetName)
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, postgresSubnetName)
   }
+  dependsOn: [
+    vnet
+  ]
 }
 
 module cosmosDb 'modules/storage/cosmos-db.bicep' = {
@@ -142,9 +282,15 @@ module cosmosDb 'modules/storage/cosmos-db.bicep' = {
     databaseName: 'urls'
     locationName: 'Spain Central'
     keyVaultName: keyVaultName
+    subnets: [
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, apiSubnetName)
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, redirectApiSubnetName)
+      resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, cosmosTriggerSubnetName)
+    ]
   }
   dependsOn: [
     keyVault
+    vnet
   ]
 }
 
@@ -165,6 +311,7 @@ module cosmosTriggerFunction 'modules/compute/function.bicep' = {
     keyVaultName: keyVaultName
     storageAccountConnectionString: storageAccount.outputs.storageConnectionString
     logAnalyticsWorkspaceId: logAnalyticsWorkspace.outputs.id
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, cosmosTriggerSubnetName)
     appSettings: [
       {
         name: 'CosmosDbConnection'
@@ -185,6 +332,7 @@ module cosmosTriggerFunction 'modules/compute/function.bicep' = {
     storageAccount
     cosmosDb
     logAnalyticsWorkspace
+    vnet
   ]
 }
 
@@ -215,6 +363,8 @@ module entraApp 'modules/identity/entra-app.bicep' = {
     spaRedirectUris: [
       'http://localhost:3000/' // Not for PRD use
       staticWebApp.outputs.url
+      'https://${frontDoor.outputs.endpointHostName}'
+      'https://${customDomain}'
     ]
   }
 }
@@ -225,9 +375,12 @@ module redisCache 'modules/storage/redis-cache.bicep' = {
     name: 'redis-cache-${uniqueId}'
     location: location
     keyVaultName: keyVaultName
+    vnetId: resourceId('Microsoft.Network/virtualNetworks', vnetName)
+    subnetId: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, redisSubnetName)
   }
   dependsOn: [
     keyVault
+    vnet
   ]
 }
 
@@ -237,4 +390,32 @@ module staticWebApp 'modules/web/static-web-app.bicep' = {
     name: 'web-app-${uniqueId}'
     location: location
   }
+}
+
+module frontDoor 'modules/network/front-door.bicep' = {
+  name: 'frontDoorDeployment'
+  params: {
+    endpointName: 'endpoint-${uniqueId}'
+    profileName: 'front-door-${uniqueId}'
+    wafPolicyName: 'waf${uniqueId}'
+    customDomainName: customDomain
+  }
+}
+
+module frontDoorRoutes 'modules/network/front-door-routes.bicep' = {
+  name: 'frontDoorRoutesDeployment'
+  params: {
+    endpointName: 'endpoint-${uniqueId}'
+    profileName: 'front-door-${uniqueId}'
+    uniqueId: uniqueId
+    redirectApiHostName: redirectApiService.outputs.hostname
+    apiHostName: apiService.outputs.hostname
+    webHostName: staticWebApp.outputs.hostname
+    customDomainId: frontDoor.outputs.customDomainId
+  }
+  dependsOn: [
+    redirectApiService
+    apiService
+    staticWebApp
+  ]
 }
